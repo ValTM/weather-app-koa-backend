@@ -1,0 +1,6 @@
+{
+  "admin": {
+    "passwordhash": "password",
+    "isAdmin": true
+  }
+}
