@@ -1,7 +1,10 @@
 import fs from 'fs';
 import jwt, { Secret } from 'jsonwebtoken';
-import { Context, Next } from 'koa';
-import { verifyKeys } from './utils';
+import { Context } from 'koa';
+import { setError, verifyKeys } from './utils';
+import { PermissionsGuardMw } from './permissionGuardMw';
+import Router from 'koa-router';
+import cryptojs from 'crypto-js';
 
 export type userBody = {
   username: string;
@@ -14,21 +17,65 @@ export type userData = {
     isAdmin?: boolean;
   };
 }
-const usersfile = 'users.json';
-export default class Users {
-  readonly userlist: userData;
-  private readonly secret: Secret;
+const salt = 'this is a very salty salt that is supposed to be a long string so it\'s really long nonsense hi mom';
 
-  constructor(secret: string) {
+export default class Users {
+  private userlist: userData;
+  private readonly secret: Secret;
+  private readonly usersfile: string;
+  router: Router;
+
+  constructor(secret: string, usersfile = 'users.json') {
+    this.usersfile = usersfile;
     this.secret = secret;
+    this.router = new Router();
     try {
-      this.userlist = JSON.parse(fs.readFileSync(usersfile, 'utf-8'));
+      this.readUserFile();
     } catch (e) {
       console.error(`error when reading users file: ${e.message}`);
     }
+    this.registerRoutes();
   }
 
-  public getListOfUsers(): string[] {
+  private readUserFile() {
+    this.userlist = JSON.parse(fs.readFileSync(this.usersfile, 'utf-8'));
+  }
+
+  private writeUserFile() {
+    fs.writeFileSync(this.usersfile, JSON.stringify(this.userlist));
+  }
+
+  private registerRoutes() {
+    this.router.post('/login', this.loginHandler.bind(this));
+    this.router.post('/register', this.registerHandler.bind(this));
+    this.router.get('/users', PermissionsGuardMw('admin'), ctx => ctx.body = this.getListOfUsers());
+    this.router.delete('/users', PermissionsGuardMw('admin'), this.deleteUserHandler.bind(this));
+  }
+
+  private deleteUserHandler(ctx: Context): void {
+    const user = ctx.request.body.username;
+    if (this.userlist[user]) {
+      if (this.userlist[user].isAdmin) {
+        setError(ctx, 400, 'You cannot delete the admin user');
+        return;
+      }
+      delete this.userlist[user];
+      try {
+        this.writeUserFile();
+        ctx.body = { message: 'successfully deleted user' };
+      } catch (e) {
+        console.error(`error when writing users file: ${e.message}`);
+        // restore file
+        this.readUserFile();
+        setError(ctx, 500, 'something went wrong when deleting user');
+        return;
+      }
+    } else {
+      setError(ctx, 404, 'user not found');
+    }
+  }
+
+  private getListOfUsers(): string[] {
     return Object.keys(this.userlist).map(key => key);
   }
 
@@ -37,7 +84,7 @@ export default class Users {
    * @param payload
    */
   // eslint-disable-next-line @typescript-eslint/ban-types
-  public generateToken(payload: string | object | Buffer): string {
+  private generateToken(payload: string | object | Buffer): string {
     return jwt.sign(payload, this.secret, { expiresIn: '1h' });
   }
 
@@ -61,13 +108,13 @@ export default class Users {
     Users.verifyLoginInfo(body);
     const user = this.userlist[body.username];
     if (!user) {
-      ctx.response.status = 409;
-      ctx.body = { error: 'Username not registered' };
+      setError(ctx, 409, 'username not registered');
       return;
     }
-    if (user.passwordhash !== body.passwordhash) {
-      ctx.response.status = 401;
-      ctx.body = { error: 'Wrong credentials' };
+    //TODO remove me
+    console.log(Users.getSaltedHash(body.passwordhash));
+    if (user.passwordhash !== Users.getSaltedHash(body.passwordhash)) {
+      setError(ctx, 401, 'invalid credentials');
       return;
     }
     const payload = {
@@ -80,6 +127,11 @@ export default class Users {
     ctx.body = { message: 'login', token: this.generateToken(payload) };
   }
 
+  private static getSaltedHash(passwordhash: string): string {
+    // S E C U R I T Y
+    return cryptojs.SHA256(salt + passwordhash).toString();
+  }
+
   /**
    * Registration handler - verifies we don't have the user already registered
    * and registers him otherwise, returning a token
@@ -89,18 +141,17 @@ export default class Users {
     const body = ctx.request.body;
     Users.verifyLoginInfo(body);
     if (this.userlist[body.username]) {
-      ctx.response.status = 409;
-      ctx.body = { error: 'username already registered' };
+      setError(ctx, 409, 'username already registered');
       return;
     }
-    this.userlist[body.username] = { passwordhash: body.passwordhash };
+    this.userlist[body.username] = { passwordhash: Users.getSaltedHash(body.passwordhash) };
     try {
-      fs.writeFileSync(usersfile, JSON.stringify(this.userlist));
+      this.writeUserFile();
     } catch (e) {
       console.error(`error when writing users file: ${e.message}`);
       delete this.userlist[body.username];
-      ctx.response.status = 500;
-      ctx.body = { error: 'something went wrong when registering' };
+      setError(ctx, 500, 'something went wrong when registering');
+      return;
     }
     ctx.body = { message: 'registered successfully', token: this.generateToken({ sub: body.username }) };
   }
