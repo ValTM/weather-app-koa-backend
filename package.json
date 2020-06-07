@@ -16,7 +16,7 @@
     "url": "TODO"
   },
   "author": "Valeri",
-  "license": "ISC",
+  "license": "WTFPL",
   "dependencies": {
     "@types/crypto-js": "^3.1.47",
     "axios": "^0.19.2",
