@@ -1,4 +1,4 @@
-import { Context, Next } from 'koa';
+import Koa, { Context, Next } from 'koa';
 import get from 'lodash/get';
 
 /**
@@ -10,7 +10,7 @@ import get from 'lodash/get';
  * permission, that are required for the route this middleware is installed on
  * @constructor
  */
-export const PermissionsGuardMw = (requiredPermissions: string | string[]) => {
+export const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.Middleware => {
   const convertStringToArray = (astring: string | string[]) => {
     return (typeof astring === 'string') ? astring.trim().split(' ') : astring;
   };
