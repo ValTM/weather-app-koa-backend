@@ -8,7 +8,7 @@ import Users from './users';
 import { setError } from './utils';
 import Weather from './weather';
 
-const port = process.env.EXPRESS_PORT || 3000;
+const port = process.env.EXPRESS_PORT || 4000;
 const secret = process.env.JWT_SECRET || base64.encode(unescape(encodeURIComponent('Val\'s super secure secret')));
 // VmFsJ3Mgc3VwZXIgc2VjdXJlIHNlY3JldA== for token validation in jwt.io
 

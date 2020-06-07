@@ -17,7 +17,7 @@ export type userData = {
     isAdmin?: boolean;
   };
 }
-const salt = 'this is a very salty salt that is supposed to be a long string so it\'s really long nonsense hi mom';
+const salt = cryptojs.SHA256('S$$apEWnlpd7d*Pus#86FXA3HkDO@z1jXUkv');
 
 export default class Users {
   private userlist: userData;
@@ -31,10 +31,10 @@ export default class Users {
     this.router = new Router();
     try {
       this.readUserFile();
+      this.registerRoutes();
     } catch (e) {
       console.error(`error when reading users file: ${e.message}`);
     }
-    this.registerRoutes();
   }
 
   private readUserFile() {
