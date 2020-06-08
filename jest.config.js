@@ -1,12 +1,13 @@
 // import path from 'path';
 module.exports = {
   roots: [
-    '<rootDir>/src'
+    '<rootDir>/tests'
   ],
   testMatch: [
-    '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/?(*.)+(spec|__tests__).+(ts|tsx|js)'
+    '**/tests/**/*.+(ts|tsx|js)',
+    '**/?(*.)+(spec|tests).+(ts|tsx|js)'
   ],
+  testPathIgnorePatterns: ['.eslintrc.js'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
