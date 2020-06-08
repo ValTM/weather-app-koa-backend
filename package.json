@@ -7,7 +7,7 @@
     "build": "tsc",
     "clean": "rimraf dist/",
     "dev": "tsc --watch",
-    "start-dev": "echo \"don't forget to run dev aswell\" && nodemon dist",
+    "start-dev": "echo \"don't forget to run dev aswell\" && nodemon --ignore 'users.json' dist",
     "lint": "eslint --ext .js,.ts src/",
     "test": "TODO",
     "start": "npm run clean && npm run build && node dist/index.js"

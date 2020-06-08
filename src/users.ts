@@ -49,11 +49,11 @@ export default class Users {
     this.router.post('/login', this.loginHandler.bind(this));
     this.router.post('/register', this.registerHandler.bind(this));
     this.router.get('/users', PermissionsGuardMw('admin'), ctx => ctx.body = this.getListOfUsers());
-    this.router.delete('/users', PermissionsGuardMw('admin'), this.deleteUserHandler.bind(this));
+    this.router.delete('/users/:username', PermissionsGuardMw('admin'), this.deleteUserHandler.bind(this));
   }
 
   private deleteUserHandler(ctx: Context): void {
-    const user = ctx.request.body.username;
+    const user = ctx.params.username;
     if (this.userlist[user]) {
       if (this.userlist[user].isAdmin) {
         setError(ctx, 400, 'You cannot delete the admin user');
@@ -75,8 +75,10 @@ export default class Users {
     }
   }
 
-  private getListOfUsers(): string[] {
-    return Object.keys(this.userlist).map(key => key);
+  private getListOfUsers(): { username: string, isAdmin: boolean }[] {
+    return Object.keys(this.userlist).map(key => {
+      return { username: key, isAdmin: this.userlist[key].isAdmin };
+    });
   }
 
   /**
@@ -111,8 +113,6 @@ export default class Users {
       setError(ctx, 409, 'username not registered');
       return;
     }
-    //TODO remove me
-    console.log(Users.getSaltedHash(body.passwordhash));
     if (user.passwordhash !== Users.getSaltedHash(body.passwordhash)) {
       setError(ctx, 401, 'invalid credentials');
       return;
