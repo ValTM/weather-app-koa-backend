@@ -1,5 +1,6 @@
 import Koa, { Context, Next } from 'koa';
 import get from 'lodash/get';
+import { setError } from './utils';
 
 /**
  * A simple jwt permissions guard middleware. This implies we're putting a "permissions" property in our token,
@@ -11,9 +12,18 @@ import get from 'lodash/get';
  * @constructor
  */
 export const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.Middleware => {
+  /**
+   * A function to convert strings to arrays of strings splitting them by whitespace, in order to be able to support
+   * {permissions: "read write execute"} type of permissions definition
+   * @param astring the string to convert
+   */
   const convertStringToArray = (astring: string | string[]) => {
     return (typeof astring === 'string') ? astring.trim().split(' ') : astring;
   };
+  /**
+   * In case of more general use for this middleware
+   * @param permissionsObject
+   */
   const isCorrectType = (permissionsObject: unknown): boolean => {
     if (typeof permissionsObject === 'string') return true;
     if (Array.isArray(permissionsObject)) {
@@ -23,10 +33,19 @@ export const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.
     }
     return false;
   };
+  /**
+   * throws an error if the decoded token permissions object is missing
+   * @param ctx
+   */
   const doTokenPermissionsExist = (ctx: Context) => {
     if (!get(ctx, 'state.user.permissions'))
       throw new Error('Missing permissions object in token');
   };
+  /**
+   * The jwt guard doing all token checks. It throws different errors depending on the failure modes
+   * @param ctx
+   * @param requiredPermissions
+   */
   const jwtPermissionsGuard = (ctx: Context, requiredPermissions: string | string[]): void => {
     doTokenPermissionsExist(ctx);
     const tokenPermissions = ctx.state.user.permissions;
@@ -44,8 +63,7 @@ export const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.
     try {
       jwtPermissionsGuard(ctx, requiredPermissions);
     } catch (e) {
-      ctx.status = 400;
-      ctx.body = { error: e.message };
+      setError(ctx, 400, e.message);
       return;
     }
     await next();

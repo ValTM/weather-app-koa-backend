@@ -13,13 +13,14 @@
       "@/*": [
         "src/*"
       ]
-    },
+    }
   },
   "include": [
     "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "tests"
+    "tests",
+    "src/**/__mocks__/**/*.ts"
   ]
 }

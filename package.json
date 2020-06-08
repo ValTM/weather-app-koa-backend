@@ -9,8 +9,10 @@
     "dev": "tsc --watch",
     "start-dev": "echo \"don't forget to run dev aswell\" && nodemon --ignore 'users.json' dist",
     "lint": "eslint --ext .js,.ts src/",
-    "test": "jest",
-    "test-watch": "jest --watch",
+    "test": "jest --verbose",
+    "test-quiet": "jest",
+    "test-watch": "jest --watch --verbose",
+    "test-watch-quiet": "jest --watch",
     "start": "npm run clean && npm run build && node dist/index.js"
   },
   "repository": {

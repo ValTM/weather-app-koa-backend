@@ -40,3 +40,4 @@ app.on('error', (err, ctx: Context) => {
 app.listen(port, (): void => {
   console.info(`Koa listening on port ${port}`);
 });
+export default app;
