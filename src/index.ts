@@ -24,7 +24,7 @@ app.use(KoaJson());
 app.use(KoaJwtValidator({ secret }).unless({ path: unprotectedPaths }));
 /** Health check */
 commonRouter.get('/', (ctx: Context) => ctx.body = 'OK');
-/** This guy is only here to test jwt auth with Postman. This comment is only here in case I forget to delete it*/
+/** This guy is only here to tests jwt auth with Postman. This comment is only here in case I forget to delete it*/
 commonRouter.get('/ping', ctx => ctx.body = 'pong');
 
 // Install routers

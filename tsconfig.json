@@ -7,13 +7,19 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
   },
   "include": [
     "src/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "test/**/*.spec.ts"
+    "src/__tests__/**/*.spec.ts"
   ]
 }
