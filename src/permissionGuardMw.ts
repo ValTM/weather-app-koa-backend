@@ -11,7 +11,7 @@ import { setError } from './utils';
  * permission, that are required for the route this middleware is installed on
  * @constructor
  */
-export const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.Middleware => {
+const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.Middleware => {
   /**
    * A function to convert strings to arrays of strings splitting them by whitespace, in order to be able to support
    * {permissions: "read write execute"} type of permissions definition
@@ -69,3 +69,4 @@ export const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.
     await next();
   };
 };
+export default PermissionsGuardMw;

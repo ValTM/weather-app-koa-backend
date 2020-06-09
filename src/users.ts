@@ -2,7 +2,7 @@ import fs from 'fs';
 import jwt, { Secret } from 'jsonwebtoken';
 import { Context } from 'koa';
 import { setError, verifyKeys } from './utils';
-import { PermissionsGuardMw } from './permissionGuardMw';
+import PermissionsGuardMw from './permissionGuardMw';
 import Router from 'koa-router';
 import cryptojs from 'crypto-js';
 
