@@ -101,6 +101,15 @@ export default class Users {
   }
 
   /**
+   * Generates a salted hash of the password coming from the frontend, so we don't store plain text
+   * @param passwordhash
+   */
+  private static getSaltedHash(passwordhash: string): string {
+    // S E C U R I T Y
+    return cryptojs.SHA256(salt + passwordhash).toString();
+  }
+
+  /**
    * Handler for login. It checks if the user exists and returns an error otherwise.
    * If the user exists it generates a token and returns it.
    * @param ctx
@@ -127,18 +136,13 @@ export default class Users {
     ctx.body = { message: 'login', token: this.generateToken(payload) };
   }
 
-  private static getSaltedHash(passwordhash: string): string {
-    // S E C U R I T Y
-    return cryptojs.SHA256(salt + passwordhash).toString();
-  }
-
   /**
    * Registration handler - verifies we don't have the user already registered
    * and registers him otherwise, returning a token
    * @param ctx
    */
   registerHandler(ctx: Context): void {
-    const body = ctx.request.body;
+    const { body } = ctx.request;
     Users.verifyLoginInfo(body);
     if (this.userlist[body.username]) {
       setError(ctx, 409, 'username already registered');
