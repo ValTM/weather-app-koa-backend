@@ -1,4 +1,4 @@
-#Weather-app backend
+# Weather-app backend
 Built with Koa and TypeScript, offers JWT secured authorization, user management, and retrieves the weather information from Openweathermap for a queried city
 ## Using the app
 
@@ -22,7 +22,7 @@ To start developing, you need to run both commands at the same time. The first w
 Runs eslint to check for linting errors.
 
 <br/>All other scripts you can find in `package.json`
-##Next steps
+## Next steps
 * Database to hold users' information, instead of a static file 
 * Proper environment variables for various keys and OWM API configuration
 * Swagger API description
