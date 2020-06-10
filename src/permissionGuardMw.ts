@@ -42,7 +42,7 @@ const PermissionsGuardMw = (requiredPermissions: string | string[]): Koa.Middlew
       throw new Error('Missing permissions object in token');
   };
   /**
-   * The jwt guard doing all token checks. It throws different errors depending on the failure modes
+   * The JWT guard doing all token checks. It throws different errors depending on the failure modes
    * @param ctx
    * @param requiredPermissions
    */

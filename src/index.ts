@@ -30,16 +30,20 @@ app.use(users.router.routes()).use(users.router.allowedMethods());
 app.use(weather.router.routes()).use(weather.router.allowedMethods());
 app.use(commonRouter.routes()).use(commonRouter.allowedMethods());
 
+// standart Koa error throwing middleware
 app.use(async (ctx: Context, next: Next) => {
   try {
     await next();
-  } catch (err) /* istanbul ignore next*/{
+  } catch (err) /* istanbul ignore next*/ {
     ctx.status = err.status || 500;
     ctx.body = err.message;
     ctx.app.emit('error', err, ctx);
   }
 });
 
+/* returns an error message. It kind of duplicates the standart middleware,
+* but I put it at the end and decided against refactoring
+*/
 app.on('error', (err, ctx: Context) => {
   console.error(err);
   setError(ctx, 500, 'Something broke!', err.message);
@@ -49,6 +53,9 @@ const server = app.listen(port, (): void => {
   console.info(`Koa listening on port ${port}`);
 });
 
+/**
+ * A cleanup function in case we need to do something when shutting down the server
+ */
 /* istanbul ignore next */
 const cleanup = (): Promise<void> => {
   return new Promise((resolve) => {
@@ -58,6 +65,9 @@ const cleanup = (): Promise<void> => {
   });
 };
 
+/**
+ * A graceful shutdown handler
+ */
 /* istanbul ignore next */
 gracefulShutdown(server,
   {

@@ -19,6 +19,9 @@ export type userData = {
 }
 const salt = cryptojs.SHA256('S$$apEWnlpd7d*Pus#86FXA3HkDO@z1jXUkv');
 
+/**
+ * A class to manage all user operations - login, registration, user maanagement by the admin
+ */
 export default class Users {
   private userlist: userData;
   private readonly secret: Secret;
@@ -45,6 +48,9 @@ export default class Users {
     fs.writeFileSync(this.usersfile, JSON.stringify(this.userlist));
   }
 
+  /**
+   * Registers the different routes for user management
+   */
   private registerRoutes() {
     this.router.post('/login', this.loginHandler.bind(this));
     this.router.post('/register', this.registerHandler.bind(this));
@@ -52,6 +58,11 @@ export default class Users {
     this.router.delete('/users/:username', PermissionsGuardMw('admin'), this.deleteUserHandler.bind(this));
   }
 
+  /**
+   * Attempts to delete a user. It blocks deleting of an admin user.
+   * It also tries to restore the file on a write failure
+   * @param ctx
+   */
   private deleteUserHandler(ctx: Context): void {
     const user = ctx.params.username;
     if (this.userlist[user]) {
@@ -75,6 +86,9 @@ export default class Users {
     }
   }
 
+  /**
+   * Gets the list of users, including the isAdmin flag
+   */
   private getListOfUsers(): { username: string, isAdmin: boolean }[] {
     return Object.keys(this.userlist).map(key => {
       return { username: key, isAdmin: this.userlist[key].isAdmin };
