@@ -129,7 +129,7 @@ export default class Users {
    * @param ctx
    */
   loginHandler(ctx: Context): void {
-    const body = ctx.request.body;
+    const body = ctx.request.body as userBody;
     Users.verifyLoginInfo(body);
     const user = this.userlist[body.username];
     if (!user) {
@@ -156,7 +156,7 @@ export default class Users {
    * @param ctx
    */
   registerHandler(ctx: Context): void {
-    const { body } = ctx.request;
+    const body = ctx.request.body as userBody;
     Users.verifyLoginInfo(body);
     if (this.userlist[body.username]) {
       setError(ctx, 409, 'username already registered');
