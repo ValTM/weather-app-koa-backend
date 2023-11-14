@@ -17,7 +17,7 @@ export const verifyKeys = (keys: string[], target: unknown): boolean =>
  * @param error
  * @param details
  */
-export const setError = (ctx: Context, status: number, error: string, details?: unknown): void => {
+export const setError = (ctx: Context, status: number, error: string, details?: string): void => {
   ctx.response.status = status;
   ctx.body = { error, details };
 };

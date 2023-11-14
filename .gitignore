@@ -1,7 +1,6 @@
 #project specific
 dist/
 node_modules
-package-lock.json
 coverage
 
 # Created by .ignore support plugin (hsz.mobi)

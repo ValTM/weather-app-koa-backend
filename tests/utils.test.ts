@@ -1,4 +1,5 @@
 import * as utils from '../src/utils';
+import { Context } from 'koa';
 
 describe('utils tests', () => {
   describe('verifyKeys', () => {
@@ -25,8 +26,7 @@ describe('utils tests', () => {
           details: undefined
         }
       };
-      // @ts-ignore
-      utils.setError(ctx, status, error, details);
+      utils.setError(ctx as unknown as Context, status, error, details);
       expect(ctx.response.status).toBe(status);
       expect(ctx.body.error).toBe(error);
       expect(ctx.body.details).toBe(details);
